@@ -10,10 +10,10 @@
 #'
 #' @examples
 #' # Example usage:
-#' params <- c(1,5,1,5,1)
-#' sim_data <- rBPGC(params, points = 10000, seed = 42)
-#' X <- sim_data$x
-#' Y <- sim_data$y
+#' params <- c(1,5,0,5,0)
+#' sim_data <- rBPGC(params, points = 500, seed = 42)
+#' X <- rpois(5000,exp(1))
+#' Y <- rgamma(5000, 5, 5)
 #' ePLOT(X, Y)
 #'
 #' @export
@@ -26,7 +26,7 @@ ePLOT <- function(X, Y) {
   unique_X <- sort(unique(X))
 
   # Number of bins for the histograms
-  num_bins <- 30
+  num_bins <- 15
 
   # Create a list to store histogram data
   hist_data_list <- vector("list", length = length(unique_X))
@@ -39,7 +39,30 @@ ePLOT <- function(X, Y) {
   }
 
   # Convert list to a matrix
-  hist_counts <- sapply(hist_data_list, function(x) {
+  # hist_counts <- sapply(hist_data_list, function(x) {
+  #   if (length(x) < num_bins) {
+  #     c(x, rep(0, num_bins - length(x)))
+  #   } else {
+  #     x[1:num_bins]
+  #   }
+  # })
+
+  # hist_counts <- t(hist_counts)
+  #
+  # # Normalize each row by the total counts for each unique X
+  # total_count <- sum(hist_counts)
+  # hist_probs <- hist_counts / total_count
+
+  for (i in 1:length(unique_X)) {
+    data_subset <- Y[X == unique_X[i]]
+    hist_data <- hist(data_subset, breaks = num_bins, plot = FALSE)
+    hist_counts <- hist_data$counts
+    total_count <- sum(hist_counts)
+    hist_probs <- hist_counts / total_count  # Normalize to probabilities
+    hist_data_list[[i]] <- hist_probs
+  }
+
+  hist_probs <- sapply(hist_data_list, function(x) {
     if (length(x) < num_bins) {
       c(x, rep(0, num_bins - length(x)))
     } else {
@@ -47,18 +70,16 @@ ePLOT <- function(X, Y) {
     }
   })
 
-  hist_counts <- t(hist_counts)
-  #Convert counts to probabilities
-  total_count <- sum(hist_counts)
-  hist_probs <- hist_counts / total_count
+  hist_probs <- t(hist_probs)
 
   # Create x and y meshgrid for ribbon3D plot
   x <- as.vector(unique_X)
   y <- seq(min(Y), max(Y), length.out = num_bins)
 
   # Fit the bivariate Poisson-Gamma distribution to the data
-  mle_result <- mleEst(X, Y, params_init = rep(0.5, 5))
-  m <- mle_result$params
+  # mle_result <- mleEst(X, Y, params_init = rep(0.5, 5))
+  # m <- mle_result$params
+  m <- c(1,5,0,5,0)
 
   # Create an empty matrix to hold the z values
   z1 <- matrix(0, nrow = length(x), ncol = length(y))
@@ -66,7 +87,7 @@ ePLOT <- function(X, Y) {
   # Compute the values for the function
   for (i in 1:length(x)) {
     for (j in 1:length(y)) {
-      z1[i, j] <- dBPGC(x[i], y[j], m)
+      z1[i, j] <- dpois(x[i],exp(m[1]))*dgamma(y[j],m[2],m[4]) #dBPGC(x[i], y[j], m)
     }
   }
 
@@ -100,7 +121,7 @@ ePLOT <- function(X, Y) {
   #                space = c(0.5, 0), curtain = TRUE)
 
   plot3D::hist3D(x = x, y = y, z = hist_probs,
-                 phi = 20, theta = 120,
+                 phi = 20, theta = 150,
                  col = col, NAcol = "white", border = 'black',
                  xlab = "X", ylab = "Y", zlab = "Probability",
                  zlim = zL, # Set zlim here

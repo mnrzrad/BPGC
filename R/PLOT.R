@@ -13,7 +13,7 @@
 #' # Example usage:
 #' X <- seq(0, 5, by = 1)
 #' Y <- seq(0.1, 3, length.out = 50)
-#' params <- c(0.1, 0.2, 0.3, 0.4, 0.5)
+#' params <- c(1,5,1,5,1)
 #' PLOT(X, Y, params)
 #'
 #' @export
@@ -61,7 +61,7 @@ PLOT <- function(X, Y, params) {
     }
   }
 
-  zl <- c(0, max(z))
+  zl <- c(0, 3*max(z))
 
   # Transpose the z matrix to match X and Y lengths
   z <- t(z)

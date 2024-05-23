@@ -29,5 +29,5 @@ dBPGC <- function(x, y, params) {
 
   c <- calC(params)
 
-  exp(c + m10 * x - m01 * y - m11 * x * y + m02 * log(y) + m12 * x * log(y)) / (factorial(x) * y)
+  exp(c + (m10 * x) - (m01 * y) - (m11 * x * y) + (m02 * log(y)) + (m12 * x * log(y))) / (factorial(x) * y)
 }
