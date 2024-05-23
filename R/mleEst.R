@@ -31,10 +31,10 @@
 #' sim_data <- rBPGC(params, points = 100, seed = 42)
 #' X <- sim_data$x
 #' Y <- sim_data$y
-#' mle(X, Y)
+#' mleEst(X, Y)
 #'
 #' @export
-mle <- function(X, Y, params_init = rep(0.5,5), max_iterations = 1e3, rel_tol = 1e-8) {
+mleEst <- function(X, Y, params_init = rep(0.5,5), max_iterations = 1e3, rel_tol = 1e-8) {
 
   negative_log_likelihood <- function(params, X, Y) {
     m10 <- params[1]

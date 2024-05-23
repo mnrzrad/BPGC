@@ -9,13 +9,9 @@
 #' It also fits a bivariate Poisson-Gamma distribution to the data and superimposes the estimated density on the empirical plot.
 #'
 #' @examples
-#' if (!requireNamespace("plot3D", quietly = TRUE)) {
-#' install.packages("plot3D")
-#' }
-#' library(plot3D)
 #' # Example usage:
-#' params <- c(0.1, 0.2, 0.3, 0.4, 0.5)
-#' sim_data <- rBPGC(params, points = 100, seed = 42)
+#' params <- c(1,5,1,5,1)
+#' sim_data <- rBPGC(params, points = 10000, seed = 42)
 #' X <- sim_data$x
 #' Y <- sim_data$y
 #' ePLOT(X, Y)
@@ -30,7 +26,7 @@ ePLOT <- function(X, Y) {
   unique_X <- sort(unique(X))
 
   # Number of bins for the histograms
-  num_bins <- 10
+  num_bins <- 30
 
   # Create a list to store histogram data
   hist_data_list <- vector("list", length = length(unique_X))
@@ -52,53 +48,70 @@ ePLOT <- function(X, Y) {
   })
 
   hist_counts <- t(hist_counts)
+  #Convert counts to probabilities
+  total_count <- sum(hist_counts)
+  hist_probs <- hist_counts / total_count
 
   # Create x and y meshgrid for ribbon3D plot
   x <- as.vector(unique_X)
   y <- seq(min(Y), max(Y), length.out = num_bins)
 
   # Fit the bivariate Poisson-Gamma distribution to the data
-  mle_result <- mle(X, Y, params_init = rep(2, 5))
+  mle_result <- mleEst(X, Y, params_init = rep(0.5, 5))
   m <- mle_result$params
 
   # Create an empty matrix to hold the z values
-  z1 <- matrix(0, nrow = length(y), ncol = length(x))
+  z1 <- matrix(0, nrow = length(x), ncol = length(y))
 
   # Compute the values for the function
   for (i in 1:length(x)) {
     for (j in 1:length(y)) {
-      z1[j, i] <- dBPGC(x[i], y[j], m)
+      z1[i, j] <- dBPGC(x[i], y[j], m)
     }
   }
 
-  zl <- c(0, max(z1))
+  max_hist_probs <- max(hist_probs)
+  max_z1 <- max(z1)
+  combined_max_z <- max(max_hist_probs, max_z1)
+
+  xL <- range(c(min(x), max(x), min(hist_probs), max(hist_probs)))
+  yL <- range(c(min(y), max(y), min(hist_probs), max(hist_probs)))
+
+
+  zL <- c(0, combined_max_z)
 
   col_pal <- colorRampPalette(c("blue", "green", "yellow", "red"))
   col <- col_pal(num_bins)
 
-  # Transpose the z matrix to match x and y lengths
-  z1 <- t(z1)
+  # # Create the 3D plot using persp3D
+  # trmat <- plot3D::persp3D(x = x, y = y, z = z1, theta = 120, zlim = zL, # Set zlim here
+  #                          box = TRUE, shade = 0, col = "transparent", border = NA,
+  #                          ticktype = 'detailed', add = FALSE,
+  #                          xlim = xL, ylim = yL # Set xlim and ylim
+  #                          )
+  #
+  # # Create the 3D plot using hist3D
+  # plot3D::hist3D(x = x1, y = y1, z = hist_probs, phi = 20, theta = 120,
+  #                col = col, NAcol = "white", border = 'black',
+  #                xlab = "X", ylab = "Y", zlab = "Probability",
+  #                zlim = zL, # Set zlim here
+  #                xlim = xL, ylim = yL, # Set xlim and ylim
+  #                add = TRUE, plot = TRUE, ticktype = 'detailed', along = 'y',
+  #                space = c(0.5, 0), curtain = TRUE)
 
-  # Create the 3D plot using hist3D
-  plot3D::hist3D(x = x, y = y, z = hist_counts,
+  plot3D::hist3D(x = x, y = y, z = hist_probs,
                  phi = 20, theta = 120,
                  col = col, NAcol = "white", border = 'black',
-                 xlab = "X", ylab = "Y", zlab = "Frequency",
+                 xlab = "X", ylab = "Y", zlab = "Probability",
+                 zlim = zL, # Set zlim here
                  add = FALSE, plot = TRUE, ticktype = 'detailed', along = 'y',
                  space = c(0.5, 0), curtain = TRUE)
 
-  # Plot the fitted bivariate Poisson-Gamma distribution
-  plot3D::persp3D(x, y, z = z1, theta = 120, zlim = zl,
-                  box = TRUE,
-                  shade = 0,
-                  col = "transparent", border = NA,
-                  xlab = 'X', ylab = 'Y', zlab = "f(x,y)", ticktype = 'detailed',
-                  add = TRUE)
-
-  # Add the curves for each fixed x without connecting lines between them
+  # Add the curves for each fixed x
   for (i in 1:length(x)) {
-    plot3D::lines3D(x = rep(x[i], length(y)), y = y, z = z1[, i], add = TRUE, col = 'red', lwd = 3)
+    plot3D::lines3D(x = rep(x[i], length(y)), y = y, z = z1[i,], add = TRUE, col = 'red', lwd = 2)
   }
 
   title("Empirical Plot with Bivariate Poisson-Gamma Fit")
 }
+
