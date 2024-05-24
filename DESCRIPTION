@@ -12,4 +12,8 @@ LazyData: false
 RoxygenNote: 7.3.1
 Depends:
     R (>= 3.5)
-Imports: stats
+Depends:
+    R (>= 3.5)
+Imports: 
+    stats, 
+    plot3D
