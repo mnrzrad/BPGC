@@ -24,7 +24,7 @@ It also includes the marginal densities for X and Y.
 # Example usage:
 X <- seq(0, 5, by = 1)
 Y <- seq(0.1, 3, length.out = 50)
-params <- c(1,5,1,5,1)
+params <- c(1,1,0,1,0)
 PLOT(X, Y, params)
 
 }

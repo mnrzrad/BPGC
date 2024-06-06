@@ -22,8 +22,10 @@ It also fits a bivariate Poisson-Gamma distribution to the data and superimposes
 # Example usage:
 params <- c(1,5,0,5,0)
 sim_data <- rBPGC(params, points = 1e6, seed = 42)
-X <- rpois(5000,exp(1))
-Y <- rgamma(5000, 5, 5)
+XX <- sim_data$x
+YY <- sim_data$y
+X <- rpois(100,exp(1))
+Y <- rgamma(100, 5, 5)
 ePLOT(X, Y)
 
 }

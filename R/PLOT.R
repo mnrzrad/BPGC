@@ -12,8 +12,8 @@
 #' @examples
 #' # Example usage:
 #' X <- seq(0, 5, by = 1)
-#' Y <- seq(0.1, 3, length.out = 50)
-#' params <- c(1,5,1,5,1)
+#' Y <- seq(1e-6, 3, length.out = 100)
+#' params <- c(1,1,1,1,1)
 #' PLOT(X, Y, params)
 #'
 #' @export
@@ -61,25 +61,29 @@ PLOT <- function(X, Y, params) {
     }
   }
 
-  zl <- c(0, 3*max(z))
+  zl <- c(0, 5*max(z))
 
   # Transpose the z matrix to match X and Y lengths
   z <- t(z)
 
-  # Plot the 3D surface without color and with white background
-  trmat <- plot3D::persp3D(X, Y, z, theta = 120, zlim = zl,
+  trmat <- persp3D(X, Y, z, theta = 120, zlim = zl,
                    box = TRUE,
                    shade = 0,
                    col = "white", border = NA,
-                   xlab = 'X', ylab = 'Y', zlab = "f(x,y)", ticktype = 'detailed')
+                   xlab = 'X', ylab = 'Y', zlab = 'f(X,Y)',
+                   ticktype = 'detailed',
+                   xlab.font = 2, ylab.font = 2, zlab.font = 2, # Font size
+                   xlab.cex = 1.5, ylab.cex = 1.5, zlab.cex = 1.5, # Font size
+                   cex.lab = 1.5, cex.main = 2 # Font size for axis labels and title
+  )
 
   # Add the curves for each fixed x without connecting lines between them
-  for (i in 1:length(X)) {
-    lines(trans3d(rep(X[i], length(Y)), Y, z[i, ], pmat = trmat), col = 'red')
+  for (i in 1:length(x)) {
+    lines(trans3d(rep(x[i], length(y)), y, z[i, ], pmat = trmat), col = 'red')
   }
 
   # Add marginal density for x
-  points(trans3d(X, rep(0, length(X)), h(X, params), pmat = trmat), lwd = 2, col = 'blue')
+  points(trans3d(x, rep(0, length(x)), h(x, m), pmat = trmat), lwd = 2, col = 'blue')
 
   # Add grid lines for y
   for (i in seq(1e-6, upper_y, length.out = 5)) {
@@ -89,14 +93,39 @@ PLOT <- function(X, Y, params) {
     lines(trans3d(rep(0, 2), c(0, upper_y), c(i, i), pmat = trmat), col = 'grey')
   }
 
+  # Add grid lines for x
+  for (i in seq(0, upper_x, by = 1)) {
+    lines(trans3d(c(i, i), rep(0, 2), zl, pmat = trmat), col = 'grey')
+  }
+
+  # Add grid lines for the y wall (x = 0)
+  for (i in seq(0, upper_x, by = 1)) {
+    lines(trans3d(c(i, i), c(0, 0), zl, pmat = trmat), col = 'grey')
+  }
+  for (i in seq(0, zl[2], length = 7)) {
+    lines(trans3d(c(0, upper_x), c(0, 0), c(i, i), pmat = trmat), col = 'grey')
+  }
+
+  # Add grid lines for the x wall (y = 0)
+  for (i in seq(0, upper_y, length.out = 5)) {
+    lines(trans3d(rep(0, 2), c(i, i), zl, pmat = trmat), col = 'grey')
+  }
+  for (i in seq(0, zl[2], length = 7)) {
+    lines(trans3d(c(0, upper_x), rep(0, 2), c(i, i), pmat = trmat), col = 'grey')
+  }
+
   # Add marginal density for y
-  lines(trans3d(rep(0, length(Y)), Y, g(Y, params), pmat = trmat), lwd = 2, col = 'blue')
+  lines(trans3d(rep(0, length(y)), y, g(y, m), pmat = trmat), lwd = 2, col = 'blue')
 
   # Annotate the plot
-  x_text_pos <- max(X) * 0.85
-  y_text_pos <- max(Y) * 0.85
-  text(trans3d(x_text_pos, 0, 1, pmat = trmat), expression(f[X](x)), col = "blue", cex = 1.2, pos = 3)
-  text(trans3d(0, y_text_pos, 1, pmat = trmat), expression(f[Y](y)), col = "blue", cex = 1.2, pos = 3)
+  x_text_pos <- max(x) * 0.85
+  y_text_pos <- max(y) * 0.85
+  text(trans3d(x_text_pos, 0, 1, pmat = trmat), expression(f[X](x)), col = "blue", cex = 1.5, pos = 3)
+  text(trans3d(0, y_text_pos, 1, pmat = trmat), expression(f[Y](y)), col = "blue", cex = 1.5, pos = 3)
+
+  # Add title
+  # mtext("m = (1,1,1,1,1)", side = 3, line = 1, cex = 2)
+
 }
 
 
