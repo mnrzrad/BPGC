@@ -4,7 +4,7 @@
 \alias{ePLOT}
 \title{Empirical Plot with Bivariate Poisson-Gamma Fit}
 \usage{
-ePLOT(X, Y)
+ePLOT(X, Y, params)
 }
 \arguments{
 \item{X}{Numeric vector representing the Poisson-distributed variable.}
@@ -20,12 +20,12 @@ It also fits a bivariate Poisson-Gamma distribution to the data and superimposes
 }
 \examples{
 # Example usage:
-params <- c(1,5,0,5,0)
-sim_data <- rBPGC(params, points = 1e6, seed = 42)
-XX <- sim_data$x
-YY <- sim_data$y
-X <- rpois(100,exp(1))
-Y <- rgamma(100, 5, 5)
-ePLOT(X, Y)
+params <- c(5,5,5,5,5)
+sim_data <- rBPGC(params, points = 1e5, seed = 42)
+X <- sim_data$x
+Y <- sim_data$y
+#X <- rpois(1000,exp(1))
+#Y <- rgamma(1000, 5, 5)
+ePLOT(X, Y, params)
 
 }

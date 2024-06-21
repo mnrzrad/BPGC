@@ -10,16 +10,16 @@
 #' @importFrom plot3D persp3D
 #' @examples
 #' # Example usage:
-#' params <- c(1,5,0,5,0)
-#' sim_data <- rBPGC(params, points = 1e6, seed = 42)
-#' XX <- sim_data$x
-#' YY <- sim_data$y
-#' X <- rpois(100,exp(1))
-#' Y <- rgamma(100, 5, 5)
-#' ePLOT(X, Y)
+#' params <- c(5,5,5,5,5)
+#' sim_data <- rBPGC(params, points = 1e5, seed = 42)
+#' X <- sim_data$x
+#' Y <- sim_data$y
+#' #X <- rpois(1000,exp(1))
+#' #Y <- rgamma(1000, 5, 5)
+#' ePLOT(X, Y, params)
 #'
 #' @export
-ePLOT <- function(X, Y) {
+ePLOT <- function(X, Y, params) {
   # Remove NA values
   valid_indices <- complete.cases(X, Y)
   X <- X[valid_indices]
@@ -28,7 +28,7 @@ ePLOT <- function(X, Y) {
   uniqueX <- sort(unique(X))
 
   # Number of bins for the histograms
-  num_bins <- 20
+  num_bins <- 25
 
   # Bin Y into intervals
   y_bins <- cut(Y, breaks = num_bins)
@@ -47,13 +47,12 @@ ePLOT <- function(X, Y) {
   # Fit the bivariate Poisson-Gamma distribution to the data
   # mle_result <- mleEst(X, Y, params_init = rep(0.5, 5))
   # m <- mle_result$params
-  m <- c(1,5,0,5,0)
 
   zz <- matrix(0, nrow = length(x), ncol = length(y))
   # Compute the values for the function
   for (i in 1:length(x)) {
     for (j in 1:length(y)) {
-      zz[i, j] <- dBPGC(x[i], y[j], m)
+      zz[i, j] <- dBPGC(x[i], y[j], params)
     }
   }
 
@@ -73,7 +72,7 @@ ePLOT <- function(X, Y) {
   col <- col_pal(num_bins)
 
   plot3D::hist3D(x = x, y = y, z = hist_probs,
-                 phi = 10, theta = 360,
+                 phi = 10, theta = 120,
                  col = 'grey', NAcol = "white", border = 'black',
                  xlab = "X", ylab = "Y", zlab = "Probability",
                  zlim = c(0, max(hist_probs, na.rm = TRUE, zz)),

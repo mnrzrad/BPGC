@@ -66,7 +66,7 @@ PLOT <- function(X, Y, params) {
   # Transpose the z matrix to match X and Y lengths
   z <- t(z)
 
-  trmat <- persp3D(X, Y, z, theta = 120, zlim = zl,
+  trmat <- plot3D::persp3D(X, Y, z, theta = 120, zlim = zl,
                    box = TRUE,
                    shade = 0,
                    col = "white", border = NA,
