@@ -10,16 +10,16 @@
 #' @importFrom plot3D persp3D
 #' @examples
 #' # Example usage:
-#' params <- c(5,5,5,5,5)
-#' sim_data <- rBPGC(params, points = 1e5, seed = 42)
+#' params <- c(1,5,1,5,1)
+#' sim_data <- rBPGC(params, points = 1e3, seed = 42)
 #' X <- sim_data$x
 #' Y <- sim_data$y
 #' #X <- rpois(1000,exp(1))
 #' #Y <- rgamma(1000, 5, 5)
-#' ePLOT(X, Y, params)
+#' ePLOT(X, Y, params, title = "m=(1,5,1,5,1)")
 #'
 #' @export
-ePLOT <- function(X, Y, params) {
+ePLOT <- function(X, Y, params, title = NULL) {
   # Remove NA values
   valid_indices <- complete.cases(X, Y)
   X <- X[valid_indices]
@@ -45,18 +45,21 @@ ePLOT <- function(X, Y, params) {
   y <- seq(min(Y), max(Y), length.out = num_bins)
 
   # Fit the bivariate Poisson-Gamma distribution to the data
-  # mle_result <- mleEst(X, Y, params_init = rep(0.5, 5))
+  mle_result <- mleEst(X, Y, params_init = rep(0.5, 5))$params
   # m <- mle_result$params
 
   zz <- matrix(0, nrow = length(x), ncol = length(y))
+  zz1 <- matrix(0, nrow = length(x), ncol = length(y))
   # Compute the values for the function
   for (i in 1:length(x)) {
     for (j in 1:length(y)) {
       zz[i, j] <- dBPGC(x[i], y[j], params)
+      zz1[i,j] <- dBPGC(x[i], y[j],  mle_result)
     }
   }
 
   zz <- zz / sum(zz) * sum(hist_probs)
+  zz1 <- zz1 / sum(zz1) * sum(hist_probs)
 
   # max_hist_probs <- max(hist_probs)
   # max_zz <- max(zz)
@@ -74,7 +77,7 @@ ePLOT <- function(X, Y, params) {
   plot3D::hist3D(x = x, y = y, z = hist_probs,
                  phi = 10, theta = 120,
                  col = 'grey', NAcol = "white", border = 'black',
-                 xlab = "X", ylab = "Y", zlab = "Probability",
+                 xlab = "X", ylab = "Y", zlab = " ",
                  zlim = c(0, max(hist_probs, na.rm = TRUE, zz)),
                  add = FALSE, plot = TRUE, ticktype = 'detailed', along = 'y',
                  space = c(0.5, 0), curtain = TRUE)
@@ -84,7 +87,14 @@ ePLOT <- function(X, Y, params) {
     plot3D::lines3D(x = rep(x[i], length(y)), y = y, z = zz[i,], add = TRUE, col = 'red', lwd = 2)
   }
 
-  title("Empirical Plot with Bivariate Poisson-Gamma Fit")
+  # Add the lines for zz1
+  for (i in 1:length(x)) {
+    plot3D::lines3D(x = rep(x[i], length(y)), y = y, z = zz1[i,], add = TRUE, col = 'blue', lwd = 2)
+  }
+
+  # plot3D::legend3D(x = "topright", bty = "n", legend = c("Histogram", "true", "fitted"),
+  #                  col = c("grey", "red", "blue"), lty = c(1, 1, 1), lwd = c(2, 2, 2))
+  title(title)
 }
 
 
