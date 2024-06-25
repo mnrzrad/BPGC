@@ -11,12 +11,12 @@
 #' @examples
 #' # Example usage:
 #' params <- c(1,5,1,5,1)
-#' sim_data <- rBPGC(params, points = 1e3, seed = 42)
+#' sim_data <- rBPGC(params, points = 1e4, seed = 42)
 #' X <- sim_data$x
 #' Y <- sim_data$y
-#' #X <- rpois(1000,exp(1))
-#' #Y <- rgamma(1000, 5, 5)
-#' ePLOT(X, Y, params, title = "m=(1,5,1,5,1)")
+#' X <- rpois(1000,exp(1))
+#' Y <- rgamma(1000, 5, 5)
+#' ePLOT(X, Y, params, title = "m=(5,5,1,5,1)")
 #'
 #' @export
 ePLOT <- function(X, Y, params, title = NULL) {
@@ -28,11 +28,30 @@ ePLOT <- function(X, Y, params, title = NULL) {
   uniqueX <- sort(unique(X))
 
   # Number of bins for the histograms
-  num_bins <- 25
+  num_bins <- 10
 
   # Bin Y into intervals
   y_bins <- cut(Y, breaks = num_bins)
 
+  interval_mean <- function(interval) {
+    # Remove the parentheses/brackets and split the string
+    cleaned_interval <- gsub("[\\(\\)]", "", interval)
+    cleaned_interval <- gsub("\\]", "", cleaned_interval)
+    bounds <- strsplit(cleaned_interval, ",")[[1]]
+    # Trim any extra spaces
+    bounds <- trimws(bounds)
+    # Convert to numeric and calculate the mean, handling potential NA values
+    num_bounds <- as.numeric(bounds)
+    if (any(is.na(num_bounds))) {
+      warning(paste("Could not convert bounds to numeric for interval:", interval))
+      return(NA)
+    }
+    mean(num_bounds)
+  }
+  intervals <- levels(y_bins)
+  interval_means <- sapply(intervals, interval_mean)
+  levels(y_bins) <- interval_means
+  cont_table <- table(X, y_bins); print(chisq.test(cont_table))
 
   hist_probs <- table(X, y_bins)/sum(table(X, y_bins))
   hist_probs <- as.matrix(hist_probs)
@@ -98,4 +117,35 @@ ePLOT <- function(X, Y, params, title = NULL) {
 }
 
 
-
+#
+#
+# # Example contingency table (replace with your actual data)
+# O <- table(X, Y)
+# # rownames(O) <- 0:6
+# # colnames(O) <- interval_means
+#
+# # Calculate expected frequencies assuming independence
+# E <- outer(rowSums(O), colSums(O)) / sum(O)
+#
+# # Calculate sqrt(O) and sqrt(E)
+# sqrt_O <- sqrt(O)
+# sqrt_E <- sqrt(E)
+#
+# # Calculate squared differences
+# diff_squared <- (sqrt_O - sqrt_E)^2
+#
+# # Calculate Freeman-Tukey statistic T^2
+# T2 <- 4 * sum(diff_squared)
+#
+# # Degrees of freedom
+# r <- nrow(O)
+# c <- ncol(O)
+# df <- (r - 1) * (c - 1)
+#
+# # Print Freeman-Tukey statistic and degrees of freedom
+# cat("Freeman-Tukey statistic T^2:", T2, "\n")
+# cat("Degrees of freedom:", df, "\n")
+#
+# # Compare T^2 to chi-square distribution
+# p_value <- pchisq(T2, df, lower.tail = FALSE)
+# cat("Chi-square p-value:", p_value, "\n")

@@ -27,8 +27,8 @@
 #' @importFrom stats constrOptim
 #' @examples
 #' # Example usage:
-#' params <- c( 1, 1, 1, 1, 0)
-#' sim_data <- rBPGC(params, points = 100, seed = 42)
+#' params <- c( 1, 1, 1, 1, 0.5)
+#' sim_data <- rBPGC(params, points = 500000, seed = 42)
 #' X <- sim_data$x
 #' Y <- sim_data$y
 #' mleEst(X, Y)
