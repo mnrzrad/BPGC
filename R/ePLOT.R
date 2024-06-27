@@ -10,7 +10,7 @@
 #' @importFrom plot3D persp3D
 #' @examples
 #' # Example usage:
-#' params <- c(1,5,1,5,1)
+#' params <- c(5,5,1,5,1)
 #' sim_data <- rBPGC(params, points = 1e4, seed = 42)
 #' X <- sim_data$x
 #' Y <- sim_data$y
@@ -28,7 +28,7 @@ ePLOT <- function(X, Y, params, title = NULL) {
   uniqueX <- sort(unique(X))
 
   # Number of bins for the histograms
-  num_bins <- 10
+  num_bins <- 20
 
   # Bin Y into intervals
   y_bins <- cut(Y, breaks = num_bins)
@@ -116,36 +116,90 @@ ePLOT <- function(X, Y, params, title = NULL) {
   title(title)
 }
 
+ePLOT1 <- function(X, Y, params, num_bins =10, title = NULL) {
+  # Remove NA values
+  valid_indices <- complete.cases(X, Y)
+  X <- X[valid_indices]
+  Y <- Y[valid_indices]
+
+  uniqueX <- sort(unique(X))
+
+  # Number of bins for the histograms
+  num_bins <- num_bins
+
+  # Bin Y into intervals
+  y_bins <- cut(Y, breaks = num_bins)
+
+  hist_probs <- table(X, y_bins)/sum(table(X, y_bins))
+  hist_probs <- as.matrix(hist_probs)
+  #
+  # Create x and y meshgrid for ribbon3D plot
+  x <- as.vector(uniqueX)
+  y <- seq(min(Y), max(Y), length.out = num_bins)
+
+  # Fit the bivariate Poisson-Gamma distribution to the data
+  # mle_result <- mleEst(X, Y, params_init = rep(0.5, 5))$params
+  # m <- mle_result$params
+
+  zz <- matrix(0, nrow = length(x), ncol = length(y))
+  # Compute the values for the function
+  for (i in 1:length(x)) {
+    for (j in 1:length(y)) {
+      zz[i, j] <- dBPGC(x[i], y[j], params)
+    }
+  }
+
+  zz <- zz / sum(zz) * sum(hist_probs)
+
+  col_pal <- colorRampPalette(c("blue", "green", "yellow", "red"))
+  col <- col_pal(num_bins)
+
+  plot3D::hist3D(x = x, y = y, z = hist_probs,
+                 phi = 10, theta = 120,
+                 col = 'grey', NAcol = "white", border = 'black',
+                 xlab = "X", ylab = "Y", zlab = " ",
+                 zlim = c(0, max(hist_probs, na.rm = TRUE, zz)),
+                 add = FALSE, plot = TRUE, ticktype = 'detailed', along = 'y',
+                 space = c(0.5, 0), curtain = TRUE)
+
+
+  for (i in 1:length(x)) {
+    plot3D::lines3D(x = rep(x[i], length(y)), y = y, z = zz[i,], add = TRUE, col = 'blue', lwd = 2)
+  }
+
+  title(title)
+}
+
 
 #
 #
-# # Example contingency table (replace with your actual data)
-# O <- table(X, Y)
-# # rownames(O) <- 0:6
-# # colnames(O) <- interval_means
-#
-# # Calculate expected frequencies assuming independence
-# E <- outer(rowSums(O), colSums(O)) / sum(O)
-#
-# # Calculate sqrt(O) and sqrt(E)
-# sqrt_O <- sqrt(O)
-# sqrt_E <- sqrt(E)
-#
-# # Calculate squared differences
-# diff_squared <- (sqrt_O - sqrt_E)^2
-#
-# # Calculate Freeman-Tukey statistic T^2
-# T2 <- 4 * sum(diff_squared)
-#
-# # Degrees of freedom
-# r <- nrow(O)
-# c <- ncol(O)
-# df <- (r - 1) * (c - 1)
-#
-# # Print Freeman-Tukey statistic and degrees of freedom
-# cat("Freeman-Tukey statistic T^2:", T2, "\n")
-# cat("Degrees of freedom:", df, "\n")
-#
-# # Compare T^2 to chi-square distribution
-# p_value <- pchisq(T2, df, lower.tail = FALSE)
-# cat("Chi-square p-value:", p_value, "\n")
+# Example contingency table (replace with your actual data)
+O <- table(X, y_bins)
+# rownames(O) <- 0:6
+# colnames(O) <- interval_means
+
+# Calculate expected frequencies assuming independence
+E <- outer(rowSums(O), colSums(O)) / sum(O)
+
+# Calculate sqrt(O) and sqrt(E)
+sqrt_O <- sqrt(O)
+sqrt_E <- sqrt(E)
+
+# Calculate squared differences
+diff_squared <- (sqrt_O - sqrt_E)^2
+
+# Calculate Freeman-Tukey statistic T^2
+T2 <- 4 * sum(diff_squared)
+
+# Degrees of freedom
+r <- nrow(O)
+c <- ncol(O)
+df <- (r - 1) * (c - 1)
+
+# Print Freeman-Tukey statistic and degrees of freedom
+cat("Freeman-Tukey statistic T^2:", T2, "\n")
+cat("Degrees of freedom:", df, "\n")
+
+# Compare T^2 to chi-square distribution
+p_value <- pchisq(T2, df, lower.tail = FALSE)
+cat("Chi-square p-value:", p_value, "\n")
