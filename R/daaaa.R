@@ -1,4 +1,4 @@
-data <- read_csv("C:/Users/minan/Downloads/archive/Animal Dataset.csv")
+data <- read_csv("C:/Users/minan/Downloads/en_climate_summaries_All_08-2023.csv")
 X <- data$Pd
 Y <- data$P
 valid_indices <- complete.cases(X, Y); X <- X[valid_indices]; Y <- Y[valid_indices]
@@ -18,36 +18,36 @@ ePLOT1(X_filtered,Y_filtered, estimated_params, num_bins = 30)
 en_climate_summaries_ON_08_2023 <- read_csv("C:/Users/minan/Downloads/en_climate_summaries_ON_08-2023.csv")
 
 
-# Set seed for reproducibility
-set.seed(123)
-
-number_of_kittens_born <- sample(0:8, 200, replace = TRUE)
-
-# Generate corresponding average birth weight of kittens (Y)
-# Assuming weights follow a normal distribution with mean 0.1 kg and standard deviation 0.02 kg
-average_birth_weight_kg <- rnorm(200, mean = 0.8, sd = 0.02)
-average_birth_weight_kg <- pmax(average_birth_weight_kg, 0.01)  # Ensure weights are positive
-average_birth_weight_kg <- number_of_kittens_born * average_birth_weight_kg
-# Create the dataframe
-cat_data <- data.frame(number_of_kittens_born, average_birth_weight_kg)
-
-# Display the first few rows of the data
-
-X <- cat_data$number_of_kittens_born
-Y <- cat_data$average_birth_weight_kg
-valid_indices <- complete.cases(X, Y); X <- X[valid_indices]; Y <- Y[valid_indices]
-positions_to_remove <- which(Y == 0) #which(X == 0 | Y == 0);
-X_filtered <- X[-positions_to_remove];
-Y_filtered <- Y[-positions_to_remove]
-estimated_params <-mleEst(X_filtered,Y_filtered)$params
-set.seed(42)
-theoretical_data <- rBPGC(estimated_params, points = length(X))
-X_theoretical <- theoretical_data$x
-Y_theoretical <- theoretical_data$y
-S1 <- cbind(X_filtered,Y_filtered)
-S2 <- cbind(X_theoretical, Y_theoretical)
-fasano.franceschini.test(S1, S2)
-ePLOT1(X_filtered,Y_filtered, estimated_params, num_bins = 20)
+# # Set seed for reproducibility
+# set.seed(123)
+#
+# number_of_kittens_born <- sample(0:8, 200, replace = TRUE)
+#
+# # Generate corresponding average birth weight of kittens (Y)
+# # Assuming weights follow a normal distribution with mean 0.1 kg and standard deviation 0.02 kg
+# average_birth_weight_kg <- rnorm(200, mean = 0.8, sd = 0.02)
+# average_birth_weight_kg <- pmax(average_birth_weight_kg, 0.01)  # Ensure weights are positive
+# average_birth_weight_kg <- number_of_kittens_born * average_birth_weight_kg
+# # Create the dataframe
+# cat_data <- data.frame(number_of_kittens_born, average_birth_weight_kg)
+#
+# # Display the first few rows of the data
+#
+# X <- cat_data$number_of_kittens_born
+# Y <- cat_data$average_birth_weight_kg
+# valid_indices <- complete.cases(X, Y); X <- X[valid_indices]; Y <- Y[valid_indices]
+# positions_to_remove <- which(Y == 0) #which(X == 0 | Y == 0);
+# X_filtered <- X[-positions_to_remove];
+# Y_filtered <- Y[-positions_to_remove]
+# estimated_params <-mleEst(X_filtered,Y_filtered)$params
+# set.seed(42)
+# theoretical_data <- rBPGC(estimated_params, points = length(X))
+# X_theoretical <- theoretical_data$x
+# Y_theoretical <- theoretical_data$y
+# S1 <- cbind(X_filtered,Y_filtered)
+# S2 <- cbind(X_theoretical, Y_theoretical)
+# fasano.franceschini.test(S1, S2)
+# ePLOT1(X_filtered,Y_filtered, estimated_params, num_bins = 20)
 
 # Set seed for reproducibility
 set.seed(123)
@@ -108,24 +108,21 @@ S2 <- cbind(X_theoretical, Y_theoretical)
 fasano.franceschini.test(S1, S2)
 ePLOT1(X_filtered,Y_filtered, estimated_params, num_bins = 20)
 
+
 # Set seed for reproducibility
 set.seed(123)
 
 # Generate hypothetical data
-n_days <- 500  # Number of days to generate data for
+n_days <- 500
 
 # X: Number of patients admitted per day (Poisson distributed)
-number_of_admissions <- rpois(n_days, lambda = 5)  # Mean of 5 admissions per day
+number_of_admissions <- rpois(n_days, lambda = 10)  # Mean of 5 admissions per day
 
 # Y: Total cost of treatment per day (Gamma distributed)
 total_cost_of_treatment <- rgamma(n_days, shape = 3, rate = 0.2)  # Shape = 3, rate = 0.2
 
 # Create dataframe
 hospital_data <- data.frame(day = 1:n_days, number_of_admissions, total_cost_of_treatment)
-
-# Display the first few rows of the data
-print(head(hospital_data))
-
 
 X <- hospital_data$number_of_admissions
 Y <- hospital_data$total_cost_of_treatment
@@ -141,3 +138,44 @@ Y_theoretical <- theoretical_data$y
 S1 <- cbind(X_filtered,Y_filtered)
 S2 <- cbind(X_theoretical, Y_theoretical)
 fasano.franceschini.test(S1, S2)
+ePLOT1(X_filtered,Y_filtered, estimated_params, num_bins = 20)
+
+
+# Load necessary libraries
+library(dplyr)
+library(readr)
+
+# Load the dataset
+df <- read_csv("C:/Users/minan/Downloads/archive(3)/healthcare_dataset.csv")
+
+# Convert 'Date of Admission' to Date type
+df$`Date of Admission` <- as.Date(df$`Date of Admission`, format="%Y-%m-%d")
+
+# Group by 'Date of Admission' and summarize
+result <- df %>%
+  group_by(`Date of Admission`) %>%
+  summarise(
+    Admissions = n(),
+    Total_Billing_Amount = sum(`Billing Amount`, na.rm = TRUE)
+  )
+
+# Display the result
+print(result)
+
+
+X <- result$Admissions
+Y <- result$Total_Billing_Amount
+valid_indices <- complete.cases(X, Y); X <- X[valid_indices]; Y <- Y[valid_indices]
+positions_to_remove <- which(Y == 0) #which(X == 0 | Y == 0);
+X_filtered <- X#[-positions_to_remove];
+Y_filtered <- Y#[-positions_to_remove]
+estimated_params <-mleEst(X_filtered,Y_filtered)$params
+set.seed(42)
+theoretical_data <- rBPGC(estimated_params, points = length(X))
+X_theoretical <- theoretical_data$x
+Y_theoretical <- theoretical_data$y
+S1 <- cbind(X_filtered,Y_filtered)
+S2 <- cbind(X_theoretical, Y_theoretical)
+fasano.franceschini.test(S1, S2)
+
+ePLOT1(X, Y, estimated_params)
