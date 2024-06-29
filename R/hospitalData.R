@@ -9,7 +9,7 @@
 #'   \item{total_cost_of_treatment}{A numeric vector representing the total cost of treatment.}
 #' }
 #'
-#'
+#' @name hospitalData
 #'
 #' @examples
 #' data("hospitalData")
