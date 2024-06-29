@@ -27,14 +27,14 @@
 #' @importFrom stats constrOptim
 #' @examples
 #' # Example usage:
-#' params <- c( 1, 1, 1, 1, 0.5)
-#' sim_data <- rBPGC(params, points = 500000, seed = 42)
+#' params <- c( 1, 1, 0.1, 1, 0.1)
+#' sim_data <- rBPGC(params, points = 1000000, seed = 42)
 #' X <- sim_data$x
 #' Y <- sim_data$y
 #' mleEst(X, Y)
 #'
 #' @export
-mleEst <- function(X, Y, params_init = rep(0.5,5), max_iterations = 1e3, rel_tol = 1e-8) {
+mlEst <- function(X, Y, params_init = rep(0.5,5), max_iterations = 1e3, rel_tol = 1e-8) {
 
   negative_log_likelihood <- function(params, X, Y) {
     m10 <- params[1]

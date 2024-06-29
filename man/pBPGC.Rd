@@ -9,9 +9,9 @@ pBPGC(X, Y, params)
 \arguments{
 \item{params}{A numeric vector of parameters: \code{c(m10, m01, m11, m02, m12)}.}
 
-\item{x}{Numeric value or vector for the Poisson-distributed variable up to which to calculate the CDF.}
+\item{x}{integer values (discrete variable)}
 
-\item{y}{Numeric value or vector for the Gamma-distributed variable up to which to calculate the CDF.}
+\item{y}{Numeric value (continuous variable)}
 }
 \value{
 A numeric value representing the CDF evaluated at the given \code{x} and \code{y}.

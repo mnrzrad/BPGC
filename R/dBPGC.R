@@ -2,8 +2,8 @@
 #'
 #' Computes the probability density function (PDF) for the bivariate Poisson-Gamma distribution given parameters and values of X and Y.
 #'
-#' @param x Numeric value or vector for the Poisson-distributed variable.
-#' @param y Numeric value or vector for the Gamma-distributed variable.
+#' @param x integer values (discrete variable)
+#' @param y Numeric value (continuous variable)
 #' @param params A numeric vector of parameters: \code{c(m10, m01, m11, m02, m12)}.
 #' @return A numeric value or vector representing the PDF evaluated at the given \code{x} and \code{y}.
 #' @details

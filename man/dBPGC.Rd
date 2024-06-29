@@ -7,9 +7,9 @@
 dBPGC(x, y, params)
 }
 \arguments{
-\item{x}{Numeric value or vector for the Poisson-distributed variable.}
+\item{x}{integer values (discrete variable)}
 
-\item{y}{Numeric value or vector for the Gamma-distributed variable.}
+\item{y}{Numeric value (continuous variable)}
 
 \item{params}{A numeric vector of parameters: \code{c(m10, m01, m11, m02, m12)}.}
 }

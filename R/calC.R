@@ -1,25 +1,3 @@
-#' Calculate the normalizing constant c
-#'
-#' This function calculates the normalizing constant c for given parameters.
-#'
-#' Calculate the normalizing constant c for the given parameters, based on the following distribution:
-#' \deqn{f(x,y | \bm{\theta}) = \frac{1}{x! \, y} \exp\left(c + m_{10}x - m_{01}y - m_{11}xy + m_{02}\log y + m_{12}x\log y\right)}
-#' where \eqn{x = 0, 1, \ldots } and \eqn{y > 0 }.
-#'
-#' @param params A numeric vector of parameters (m10, m01, m11, m02, m12)
-#'
-#' @return The normalizing constant c.
-#'
-#' @examples
-#'
-#' # params = m = (m10, m01, m11, m02, m12)
-#' params <- c(1, 1, 0, 1, 0)
-#'
-#' c_value <- calC(params)
-#' cat("Normalization constant c:", c_value)
-#'
-#' @importFrom stats integrate
-#' @export
 calC <- function(params) {
   m10 <- params[1]
   m01 <- params[2]
