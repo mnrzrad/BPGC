@@ -4,47 +4,41 @@
 \alias{mlEst}
 \title{Maximum Likelihood Estimation (MLE) Function}
 \usage{
-mlEst(X, Y, params_init = rep(0.5, 5), max_iterations = 1000, rel_tol = 1e-08)
+mlEst(
+  X,
+  Y,
+  params_init = rep(0.5, 5),
+  max_iterations = 1000,
+  rel_tol = 1e-08,
+  inference = FALSE
+)
 }
 \arguments{
-\item{X}{A numeric vector of observations for the predictor variable.}
+\item{X}{A numeric vector of observations for the discrete variable.}
 
-\item{Y}{A numeric vector of observations for the response variable.}
+\item{Y}{A numeric vector of observations for the continuous variable.}
 
 \item{params_init}{Initial values for the parameters.}
 
 \item{max_iterations}{Maximum number of iterations for optimization.}
 
 \item{rel_tol}{Relative tolerance for convergence.}
+
+\item{inference}{Logical. If TRUE, standard errors, Wald statistics and p-values
+are computed from a numerical Hessian of the negative log-likelihood.}
 }
 \value{
-A list with the following components:
-\describe{
-  \item{params}{Optimized parameters.}
-  \item{negative_log_likelihood}{Value of the negative log-likelihood at the optimum.}
-  \item{convergence}{Convergence code: 0 for successful convergence, non-zero otherwise.}
-  \item{message}{Description of the optimization result.}
-}
+A list with the optimized parameters, negative log-likelihood,
+convergence information, and optionally inferential summaries.
 }
 \description{
-Estimates the parameters that maximize the likelihood of the data.
-}
-\details{
-This function performs Maximum Likelihood Estimation (MLE) using constrained optimization
-to find the parameters that maximize the likelihood of the data given the model. It uses
-the \code{constrOptim} function for optimization, which requires setting constraints on
-the parameters.
-
-The negative log-likelihood function used for optimization is internally defined within
-this function. It calculates the negative log-likelihood based on given parameters and
-observed data.
+Estimates the parameters of the BPGC distribution by maximum likelihood.
 }
 \examples{
-# Example usage:
-params <- c( 1, 1, 0.1, 1, 0.1)
-sim_data <- rBPGC(params, points = 1000000, seed = 42)
+params <- c(1, 1, 0.1, 1, 0.1)
+sim_data <- rBPGC(params, points = 1000, seed = 42)
 X <- sim_data$x
 Y <- sim_data$y
-mleEst(X, Y)
+mlEst(X, Y, inference = TRUE)
 
 }
