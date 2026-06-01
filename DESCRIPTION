@@ -14,4 +14,5 @@ Depends:
     R (>= 3.5)
 Imports: 
     stats, 
-    plot3D
+    plot3D,
+    numDeriv
